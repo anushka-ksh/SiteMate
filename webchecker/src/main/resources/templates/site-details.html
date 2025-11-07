@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Details for ' + ${site.name}">Site Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-blue: #007bff; --dark-text: #212529; --light-text: #6c757d; --bg-light: #f8f9fa; --border-color: #dee2e6; --success-green: #28a745; --error-red: #dc3545;}
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; }
+        .navbar { background-color: #ffffff; padding: 1.5rem 3rem; border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--brand-blue); }
+        .main-content { padding: 3rem; max-width: 1200px; margin: auto; }
+        .logout-button { background-color: #dc3545; color: #ffffff; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; font-family: 'Inter', sans-serif; cursor: pointer; }
+        .card { background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card h2 { margin-top: 0; margin-bottom: 1.5rem; }
+        h1 { font-size: 2.5rem; font-weight: 700; }
+
+        /* Table styles */
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1rem 1rem; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--light-text); font-weight: 500; }
+        tr:last-child td { border-bottom: none; }
+        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+        .status-dot.success { background-color: var(--success-green); }
+        .status-dot.error { background-color: var(--error-red); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">SitePulse</div>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </nav>
+
+    <main class="main-content">
+        <h1 th:text="'History for ' + ${site.name}">History for...</h1>
+        <p style="margin-bottom: 2rem; font-size: 1.2rem; color: var(--light-text);" th:text="${site.url}">https://...</p>
+        <a th:href="@{/dashboard}" style="text-decoration: none; margin-bottom: 2rem; display: inline-block;">&larr; Back to Dashboard</a>
+
+        <div class="card">
+            <h2>Recent Checks</h2>
+
+            <div th:if="${history == null or history.isEmpty()}">
+                <p>No check history found for this URL yet.</p>
+            </div>
+
+            <table th:unless="${history == null or history.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Response Message</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="result : ${history}">
+                        <td>
+                            <span class="status-dot" th:classappend="${result.isUp} ? 'success' : 'error'"></span>
+                            <span th:text="${result.isUp} ? 'UP' : 'DOWN'"></span>
+                        </td>
+                        <td th:text="${result.responseMessage}">[UP] https://...</td>
+                        <td th:text="${#temporals.format(result.timestamp, 'MMM dd, yyyy HH:mm:ss')}">Jan 01, 2025 14:30:05</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+</body>
+</html>

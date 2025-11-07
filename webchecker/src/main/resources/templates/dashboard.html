@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dashboard - SitePulse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-blue: #007bff; --dark-text: #212529; --light-text: #6c757d; --bg-light: #f8f9fa; --border-color: #dee2e6; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; }
+        .navbar { background-color: #ffffff; padding: 1.5rem 3rem; border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--brand-blue); }
+        .main-content { padding: 3rem; max-width: 1200px; margin: auto; }
+        .logout-button { background-color: #dc3545; color: #ffffff; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; font-family: 'Inter', sans-serif; cursor: pointer; }
+        
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        h1 { font-size: 2.5rem; font-weight: 700; }
+
+        /* Card styles for layout */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .card h2 { margin-top: 0; margin-bottom: 1.5rem; }
+
+        /* Form styles */
+        .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .form-group { flex: 1; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; }
+        .form-button { padding: 0.75rem 1.5rem; background-color: var(--brand-blue); color: #ffffff; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+
+        /* Table styles */
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1rem 1rem; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--light-text); font-weight: 500; }
+        
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">SitePulse</div>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </nav>
+
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h1 th:text="'Welcome, ' + ${username} + '!'">Welcome!</h1>
+        </div>
+
+        <div class="card">
+            <h2>Monitor a New Website</h2>
+            <form th:action="@{/dashboard/addsite}" th:object="${newSite}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Site Name</label>
+                        <input type="text" id="name" th:field="*{name}" placeholder="e.g., My Personal Blog" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="url">Site URL</label>
+                        <input type="text" id="url" th:field="*{url}" placeholder="https://myblog.com" required>
+                    </div>
+                </div>
+                <button type="submit" class="form-button">Add Site</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Your Monitored Sites</h2>
+            <div th:if="${userSites == null or userSites.isEmpty()}">
+                <p>You are not monitoring any sites yet. Add one above!</p>
+            </div>
+            
+            <table th:unless="${userSites == null or userSites.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Site Name</th>
+                        <th>URL</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="site : ${userSites}">
+                        <td th:text="${site.name}">My Blog</td>
+                        <td th:text="${site.url}">httpsg://myblog.com</td>
+                        <td>
+                            <a th:href="@{/dashboard/site/{id}(id=${site.id})}">Details</a> | 
+
+                            <form th:action="@{/dashboard/deletesite/{id}(id=${site.id})}" method="post" style="display:inline;">
+                                </form>
+                            </td> 
+                        <td>
+                            <form th:action="@{/dashboard/deletesite/{id}(id=${site.id})}" method="post" style="display:inline;">
+                                <button type="submit" style="color:red; background:none; border:none; padding:0; font:inherit; cursor:pointer;">
+                                    Delete
+                                </button>
+                            </form>
+                            </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

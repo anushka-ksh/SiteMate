@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SitePulse - Real-Time Uptime Monitoring</title>
+    <!-- Using the "Inter" font, popular on modern tech sites -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-blue: #007bff;
+            --dark-text: #212529;
+            --light-text: #6c757d;
+            --bg-light: #f8f9fa;
+            --border-color: #dee2e6;
+            --success-green: #28a745;
+            --error-red: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--dark-text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Navigation Bar --- */
+        .navbar {
+            background-color: #ffffff;
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--light-text);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--brand-blue);
+        }
+
+        .nav-links a.cta-button {
+            background-color: var(--brand-blue);
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a.cta-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* --- Main Hero Section --- */
+        .hero {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.125rem;
+            color: var(--light-text);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+        }
+
+        .check-form {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+            border-radius: 8px;
+        }
+
+        .check-form input[type="text"] {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            border-radius: 8px 0 0 8px;
+            outline: none;
+            border-right: none;
+            transition: box-shadow 0.3s;
+        }
+
+        .check-form input[type="text"]:focus {
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+            border-color: var(--brand-blue);
+        }
+
+        .check-form button {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: var(--brand-blue);
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+
+        .check-form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* --- Result Box --- */
+        .result-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            font-size: 1rem;
+            font-weight: 500;
+            display: none; /* Hidden by default */
+        }
+
+        .result-box.success {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid var(--success-green);
+            color: var(--success-green);
+            display: block;
+        }
+
+        .result-box.error {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid var(--error-red);
+            color: var(--error-red);
+            display: block;
+        }
+        
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-top: 1px solid var(--border-color);
+            color: var(--light-text);
+            font-size: 0.875rem;
+        }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .check-form {
+                flex-direction: column;
+                border-radius: 8px;
+            }
+            .check-form input[type="text"] {
+                border-radius: 8px 8px 0 0;
+                border-right: 1px solid var(--border-color);
+                text-align: center;
+            }
+            .check-form button {
+                border-radius: 0 0 8px 8px;
+            }
+        }
+        /* --- History Table Styles --- */
+        .history-container {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 3rem;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .history-container h3 {
+            text-align: left;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+        }
+
+        .history-container table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .history-container th, .history-container td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-container th {
+            color: var(--light-text);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .history-container td {
+            font-size: 0.9rem;
+        }
+
+        .history-container tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-dot.success { background-color: var(--success-green); }
+        .status-dot.error { background-color: var(--error-red); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">SitePulse</div>
+        <ul class="nav-links">
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">Docs</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a th:href="@{/login}">Login</a></li>
+            <li><a th:href="@{/signup}" class="cta-button">Sign Up Free</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Hero Section -->
+    <main class="hero">
+        <h1>Global Uptime Monitoring</h1>
+        <p>Enter any URL to get an instant real-time status check from our global network. Simple, fast, and reliable.</p>
+
+        <form action="/check" method="post" class="check-form">
+            <input type="text" name="url" placeholder="Enter website URL (e.g., https://www.google.com)" required autocomplete="off">
+            <button type="submit">Check Now</button>
+        </form>
+
+        <!-- Result from the backend will be displayed here -->
+        <div th:if="${statusMessage}" 
+             th:text="${statusMessage}"
+             th:classappend="${isUp} ? 'success' : 'error'"
+             class="result-box">
+             <!-- Example: [UP] https://google.com is UP! (200 OK) -->
+        </div>
+        <div th:if="${statusMessage}" 
+             th:text="${statusMessage}"
+             th:classappend="${isUp} ? 'success' : 'error'"
+             class="result-box">
+        </div>
+
+        <div class="history-container" th:if="${history != null and !history.isEmpty()}">
+            <h3>Recent History for this URL</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Response</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="result : ${history}">
+                        <td>
+                            <span class="status-dot" th:classappend="${result.isUp} ? 'success' : 'error'"></span>
+                            <span th:text="${result.isUp} ? 'UP' : 'DOWN'"></span>
+                        </td>
+                        <td th:text="${result.responseMessage}">[UP] https://...</td>
+                        <td th:text="${#temporals.format(result.timestamp, 'MMM dd, yyyy HH:mm:ss')}">Jan 01, 2025 14:30:05</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 SitePulse. All rights reserved. A demo project.</p>
+    </footer>
+
+</body>
+</html>
