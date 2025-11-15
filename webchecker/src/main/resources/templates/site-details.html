@@ -5,25 +5,258 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="'Details for ' + ${site.name}">Site Details</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        :root { --brand-blue: #007bff; --dark-text: #212529; --light-text: #6c757d; --bg-light: #f8f9fa; --border-color: #dee2e6; --success-green: #28a745; --error-red: #dc3545;}
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; }
-        .navbar { background-color: #ffffff; padding: 1.5rem 3rem; border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: 700; color: var(--brand-blue); }
-        .main-content { padding: 3rem; max-width: 1200px; margin: auto; }
-        .logout-button { background-color: #dc3545; color: #ffffff; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500; border: none; font-family: 'Inter', sans-serif; cursor: pointer; }
-        .card { background-color: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card h2 { margin-top: 0; margin-bottom: 1.5rem; }
-        h1 { font-size: 2.5rem; font-weight: 700; }
+        :root { 
+            --navy-blue: #1e3a5f;
+            --brand-blue: #2c5aa0;
+            --baby-blue: #87ceeb;
+            --light-blue: #b0e0e6;
+            --pale-blue: #e0f2f7;
+            --dark-text: #1a1a2e;
+            --light-text: #6c757d;
+            --bg-light: #f0f8ff;
+            --border-color: #c8d6e5;
+            --success-green: #28a745; 
+            --error-red: #dc3545;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--brand-blue) 50%, var(--baby-blue) 100%);
+            background-attachment: fixed;
+            margin: 0;
+            min-height: 100vh;
+        }
+        
+        .navbar { 
+            background: rgba(30, 58, 95, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.25rem 2rem; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: #ffffff;
+            text-decoration: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .main-content { 
+            padding: 2rem; 
+            max-width: 1200px; 
+            margin: auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logout-button { 
+            background-color: #dc3545; 
+            color: #ffffff; 
+            padding: 0.625rem 1.25rem; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: 500; 
+            border: none; 
+            font-family: 'Inter', sans-serif; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .logout-button:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+        
+        .card { 
+            background-color: #ffffff; 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 2rem; 
+            margin-bottom: 2rem; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        
+        .card h2 { 
+            margin-top: 0; 
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--dark-text);
+        }
+        
+        h1 { 
+            font-size: 2.25rem; 
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            color: var(--navy-blue);
+        }
+        
+        .back-link {
+            display: inline-block;
+            text-decoration: none;
+            color: var(--brand-blue);
+            font-weight: 500;
+            margin-bottom: 2rem;
+            transition: color 0.3s;
+        }
+        
+        .back-link:hover {
+            color: var(--navy-blue);
+            text-decoration: underline;
+        }
+        
+        .site-url {
+            margin-bottom: 2rem;
+            font-size: 1.125rem;
+            color: var(--light-text);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left;
+            min-width: 600px;
+        }
+        
+        th, td { 
+            padding: 1rem; 
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th { 
+            color: var(--light-text); 
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            color: var(--dark-text);
+        }
+        
+        tr:last-child td { 
+            border-bottom: none; 
+        }
+        
+        tr:hover {
+            background-color: var(--pale-blue);
+        }
+        
+        .status-dot { 
+            display: inline-block; 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%; 
+            margin-right: 8px;
+        }
+        
+        .status-dot.success { 
+            background-color: var(--success-green); 
+        }
+        
+        .status-dot.error { 
+            background-color: var(--error-red); 
+        }
 
-        /* Table styles */
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 1rem 1rem; border-bottom: 1px solid var(--border-color); }
-        th { color: var(--light-text); font-weight: 500; }
-        tr:last-child td { border-bottom: none; }
-        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
-        .status-dot.success { background-color: var(--success-green); }
-        .status-dot.error { background-color: var(--error-red); }
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-text);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem 1.5rem;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .main-content {
+                padding: 1.5rem 1rem;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .table-container {
+                margin: 0 -1.5rem;
+                padding: 0 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .card {
+                padding: 1.25rem;
+            }
+            
+            .card h2 {
+                font-size: 1.25rem;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            .site-url {
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -35,38 +268,95 @@
     </nav>
 
     <main class="main-content">
+        <a th:href="@{/dashboard}" class="back-link">&larr; Back to Dashboard</a>
         <h1 th:text="'History for ' + ${site.name}">History for...</h1>
-        <p style="margin-bottom: 2rem; font-size: 1.2rem; color: var(--light-text);" th:text="${site.url}">https://...</p>
-        <a th:href="@{/dashboard}" style="text-decoration: none; margin-bottom: 2rem; display: inline-block;">&larr; Back to Dashboard</a>
+        <p class="site-url" th:text="${site.url}">https://...</p>
+
+        <div class="card">
+            <h2>Response Time (ms)</h2>
+            <div class="chart-container">
+                <canvas id="responseTimeSeriesChart"></canvas>
+            </div>
+        </div>
 
         <div class="card">
             <h2>Recent Checks</h2>
-
-            <div th:if="${history == null or history.isEmpty()}">
+            <div th:if="${history.isEmpty()}" class="empty-state">
                 <p>No check history found for this URL yet.</p>
             </div>
-
-            <table th:unless="${history == null or history.isEmpty()}">
-                <thead>
-                    <tr>
-                        <th>Status</th>
-                        <th>Response Message</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="result : ${history}">
-                        <td>
-                            <span class="status-dot" th:classappend="${result.isUp} ? 'success' : 'error'"></span>
-                            <span th:text="${result.isUp} ? 'UP' : 'DOWN'"></span>
-                        </td>
-                        <td th:text="${result.responseMessage}">[UP] https://...</td>
-                        <td th:text="${#temporals.format(result.timestamp, 'MMM dd, yyyy HH:mm:ss')}">Jan 01, 2025 14:30:05</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div th:unless="${history.isEmpty()}" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Response Message</th>
+                            <th>Time (ms)</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="result : ${history}">
+                            <td>
+                                <span class="status-dot" th:classappend="${result.isUp} ? 'success' : 'error'"></span>
+                                <span th:text="${result.isUp} ? 'UP' : 'DOWN'"></span>
+                            </td>
+                            <td th:text="${result.responseMessage}">[UP] https://...</td>
+                            <td th:text="${result.responseTimeMs}">145</td>
+                            <td th:text="${#temporals.format(result.timestamp, 'MMM dd, yyyy HH:mm:ss')}">Jan 01, 2025 14:30:05</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
+    <script th:inline="javascript">
+        // Get the site ID from our Thymeleaf model
+        const siteId = /*[[${site.id}]]*/ '0';
+
+        // Run the script once the document is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch the history data from our new API endpoint
+            fetch(`/api/history/${siteId}`)
+                .then(response => response.json())
+                .then(data => {
+                    
+                    // The data comes in reverse-chronological order (newest first)
+                    // We must reverse it for the chart (oldest first)
+                    const reversedData = data.reverse();
+                    
+                    // Extract the timestamps for the X-axis labels
+                    const labels = reversedData.map(result => {
+                        return new Date(result.timestamp).toLocaleTimeString();
+                    });
+                    
+                    // Extract the response times for the Y-axis data
+                    const responseTimes = reversedData.map(result => result.responseTimeMs);
+                    
+                    // Get the canvas element
+                    const ctx = document.getElementById('responseTimeSeriesChart').getContext('2d');
+                    
+                    // Create the chart
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Response Time (ms)',
+                                data: responseTimes,
+                                fill: false,
+                                borderColor: 'rgb(44, 90, 160)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching chart data:', error));
+        });
+    </script>
 </body>
 </html>

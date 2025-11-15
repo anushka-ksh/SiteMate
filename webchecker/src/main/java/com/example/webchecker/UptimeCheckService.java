@@ -20,9 +20,13 @@ public class UptimeCheckService {
     // --- End of new part ---
 
     // This method now saves the result before returning the message
+    // Replace the entire checkUrlStatus method with this:
     public String checkUrlStatus(String urlString) {
         String responseMessage;
-        boolean isUp = false; // Variable to track the status
+        boolean isUp = false;
+        long responseTimeMs = -1; // Default to -1 for a failed check
+
+        long startTime = System.currentTimeMillis(); // 1. Record start time
 
         try {
             URL url = new URL(urlString);
@@ -31,26 +35,26 @@ public class UptimeCheckService {
             connection.setConnectTimeout(5000);
             connection.connect();
 
+            responseTimeMs = System.currentTimeMillis() - startTime; // 2. Calculate time
             int responseCode = connection.getResponseCode();
 
             if (responseCode == 200) {
                 responseMessage = "[UP] " + urlString + " is online! (Response: 200 OK)";
-                isUp = true; // Set status
+                isUp = true;
             } else {
-                responseMessage = "[WARN] " + urlString + " is online but returned a non-OK status. (Response: "
-                        + responseCode + ")";
-                isUp = true; // Still "up" because it responded
+                responseMessage = "[WARN] " + urlString + " is online but... (Response: " + responseCode + ")";
+                isUp = true;
             }
 
         } catch (IOException e) {
+            responseTimeMs = System.currentTimeMillis() - startTime; // 2. Also calculate time on failure
             responseMessage = "[DOWN] " + urlString + " appears to be offline. (Error: " + e.getMessage() + ")";
-            // isUp remains false
+            isUp = false;
         }
 
-        // --- NEW: Save the result to the database ---
-        CheckResult result = new CheckResult(urlString, LocalDateTime.now(), isUp, responseMessage);
+        // 3. Save the new data to the database
+        CheckResult result = new CheckResult(urlString, LocalDateTime.now(), isUp, responseMessage, responseTimeMs);
         repository.save(result);
-        // --- End of new part ---
 
         return responseMessage;
     }

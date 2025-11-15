@@ -17,17 +17,26 @@ public class CheckResult {
     private LocalDateTime timestamp;
     private boolean isUp;
     private String responseMessage;
+    private long responseTimeMs;
 
     // Constructors, Getters, and Setters
     // Spring needs a no-arg constructor
     public CheckResult() {
     }
 
-    public CheckResult(String url, LocalDateTime timestamp, boolean isUp, String responseMessage) {
+    // public CheckResult(String url, LocalDateTime timestamp, boolean isUp, String
+    // responseMessage) {
+    // this.url = url;
+    // this.timestamp = timestamp;
+    // this.isUp = isUp;
+    // this.responseMessage = responseMessage;
+    // }
+    public CheckResult(String url, LocalDateTime timestamp, boolean isUp, String responseMessage, long responseTimeMs) {
         this.url = url;
         this.timestamp = timestamp;
         this.isUp = isUp;
         this.responseMessage = responseMessage;
+        this.responseTimeMs = responseTimeMs; // NEW
     }
 
     // --- Getters and Setters ---
@@ -70,5 +79,13 @@ public class CheckResult {
 
     public void setResponseMessage(String responseMessage) {
         this.responseMessage = responseMessage;
+    }
+
+    public long getResponseTimeMs() {
+        return responseTimeMs;
+    }
+
+    public void setResponseTimeMs(long responseTimeMs) {
+        this.responseTimeMs = responseTimeMs;
     }
 }

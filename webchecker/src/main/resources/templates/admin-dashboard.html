@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SitePulse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy-blue: #1e3a5f;
+            --brand-blue: #2c5aa0;
+            --baby-blue: #87ceeb;
+            --light-blue: #b0e0e6;
+            --pale-blue: #e0f2f7;
+            --dark-text: #1a1a2e;
+            --light-text: #6c757d;
+            --bg-light: #f0f8ff;
+            --border-color: #c8d6e5;
+            --sidebar-bg: rgba(30, 58, 95, 0.98);
+            --sidebar-width: 260px;
+            --error-red: #dc3545;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--brand-blue) 50%, var(--baby-blue) 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding-left: var(--sidebar-width); /* Make space for the sidebar */
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding-left: 0;
+            }
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            box-sizing: border-box; /* Include padding in width */
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        
+        .sidebar-nav a.active, .sidebar-nav a:hover {
+            background: linear-gradient(135deg, var(--brand-blue), var(--baby-blue));
+            color: #ffffff;
+        }
+
+        .sidebar-footer form {
+            width: 100%;
+        }
+
+        .logout-button {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .logout-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: linear-gradient(135deg, var(--navy-blue), var(--brand-blue));
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+            
+            .main-content {
+                padding: 1.5rem 1rem;
+                padding-top: 4rem;
+                margin: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            .stat-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .card {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 1rem;
+                padding-top: 3.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stat-card .value {
+                font-size: 2rem;
+            }
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            margin: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 2rem;
+            color: var(--navy-blue);
+        }
+
+        /* --- Stat Cards --- */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), var(--pale-blue));
+            border: 1px solid var(--light-blue);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--light-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark-text);
+        }
+
+        /* --- Main Card for Table --- */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--light-blue);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            /* We'll let the table manage padding */
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        /* --- Table --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        
+        th, td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        
+        tr:last-child td { border-bottom: none; }
+        
+        th {
+            color: var(--light-text);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+
+        /* --- Action Buttons --- */
+        .action-link {
+            text-decoration: none;
+            font-weight: 500;
+            color: var(--brand-blue);
+            margin-right: 0.75rem;
+            transition: color 0.3s;
+        }
+        
+        .action-link:hover {
+            color: var(--navy-blue);
+        }
+        
+        .action-button-delete {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
+            color: var(--error-red);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .action-button-delete:hover {
+            color: #c82333;
+        }
+
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="logo">SitePulse</div>
+        
+        <ul class="sidebar-nav">
+            <li><a th:href="@{/admin/dashboard}" class="active">Dashboard</a></li>
+            <li><a th:href="@{/dashboard}">Client View</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-button">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <h1>Admin Dashboard</h1>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="title">Total Users</div>
+                <div class="value" th:text="${totalUsers}">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="title">Total Sites Monitored</div>
+                <div class="value" th:text="${totalSites}">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="title">Total Checks Performed</div>
+                <div class="value" th:text="${totalChecks}">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>All Users</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.id}">1</td>
+                        <td th:text="${user.username}">admin</td>
+                        <td>
+                            <span th:text="${user.role}" 
+                                  th:style="${user.role == 'ADMIN'} ? 'font-weight: 700;' : 'font-weight: 400;'">
+                                ADMIN
+                            </span>
+                        </td>
+                        <td>
+                            <a href="#" class="action-link">Edit Role</a>
+                            <button class="action-button-delete">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    </script>
+
+</body>
+</html>

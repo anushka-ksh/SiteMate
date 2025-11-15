@@ -35,6 +35,28 @@ public class WebCheckerController {
 		this.siteRepository = siteRepository; // NEW
 	}
 
+	// --- NEW: Admin Dashboard ---
+	// --- UPDATED: Admin Dashboard ---
+	@GetMapping("/admin/dashboard")
+	public String showAdminDashboard(Model model) {
+
+		// 1. Fetch ALL users from the database
+		List<User> allUsers = userRepository.findAll();
+
+		// 2. --- NEW: Fetch Statistics ---
+		long totalUsers = userRepository.count();
+		long totalSites = siteRepository.count();
+		long totalChecks = resultRepository.count();
+
+		// 3. Add all data to the model
+		model.addAttribute("users", allUsers);
+		model.addAttribute("totalUsers", totalUsers);
+		model.addAttribute("totalSites", totalSites);
+		model.addAttribute("totalChecks", totalChecks);
+
+		return "admin-dashboard"; // Renders admin-dashboard.html
+	}
+
 	// --- NEW METHOD: Show Site Details Page ---
 	@GetMapping("/dashboard/site/{id}")
 	public String showSiteDetails(@PathVariable("id") Long id, Model model, Principal principal) {

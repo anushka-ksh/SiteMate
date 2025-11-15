@@ -1,5 +1,6 @@
 package com.example.webchecker;
 
+import org.springframework.beans.factory.annotation.Autowired; // NEW
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,21 +10,23 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher; // Correct import
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // --- NEW: Inject the custom success handler ---
+    @Autowired
+    private CustomLoginSuccessHandler successHandler;
+
     // Bean 1: The Password Encoder
-    // This tells Spring how to securely hash and check passwords.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     // Bean 2: The User Details Service
-    // This tells Spring Security how to find a user in our database.
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
         return username -> {
@@ -33,31 +36,29 @@ public class SecurityConfig {
             return org.springframework.security.core.userdetails.User
                     .withUsername(user.getUsername())
                     .password(user.getPassword())
-                    .roles(user.getRole()) // Spring will automatically add "ROLE_" prefix
+                    .roles(user.getRole())
                     .build();
         };
     }
 
     // Bean 3: The Security Filter Chain (The Main Rulebook)
-    // This tells Spring Security which pages to protect and which to allow.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         // Allow these pages to be visited by anyone
-                        .requestMatchers("/", "/check", "/signup", "/css/**", "/js/**").permitAll()
-                        // H2 console is for development, allow it
+                        .requestMatchers("/", "/check", "/signup", "/login", "/css/**", "/js/**").permitAll()
                         .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
+                        // --- RULE FOR ADMINS ---
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         // All other pages require the user to be logged in
                         .anyRequest().authenticated())
                 .formLogin(form -> form
-                        // We will create a custom login page at "/login"
                         .loginPage("/login")
                         .permitAll()
-                        // On successful login, redirect to a dashboard (we'll create this)
-                        .defaultSuccessUrl("/dashboard", true))
+                        // --- MODIFIED: Use the custom handler instead of defaultSuccessUrl ---
+                        .successHandler(successHandler))
                 .logout(logout -> logout
-                        // On logout, redirect to the homepage
                         .logoutSuccessUrl("/")
                         .permitAll());
 
